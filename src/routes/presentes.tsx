@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Copy, Check, CreditCard, Plane, Gift } from "lucide-react";
 
@@ -119,9 +119,13 @@ function GiftCard({ title, desc, price }: { title: string; desc?: string; price:
         R$ {price.toLocaleString("pt-BR")}
       </p>
       <p className="text-xs text-muted-foreground">ou 12x de R$ {(price / 12).toFixed(2).replace(".", ",")}</p>
-      <button className="mt-5 inline-flex items-center justify-center gap-2 rounded-full border border-primary/40 text-primary py-2.5 text-sm hover:bg-primary hover:text-primary-foreground transition-colors">
+      <Link
+        to="/pagamento"
+        search={{ title, price }}
+        className="mt-5 inline-flex items-center justify-center gap-2 rounded-full border border-primary/40 text-primary py-2.5 text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+      >
         <CreditCard className="size-4" /> Presentear
-      </button>
+      </Link>
     </div>
   );
 }
