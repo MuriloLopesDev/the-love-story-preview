@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PresentesRouteImport } from './routes/presentes'
+import { Route as PagamentoRouteImport } from './routes/pagamento'
 import { Route as InformacoesRouteImport } from './routes/informacoes'
 import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as ConfirmacaoRouteImport } from './routes/confirmacao'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const PresentesRoute = PresentesRouteImport.update({
   id: '/presentes',
   path: '/presentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoRoute = PagamentoRouteImport.update({
+  id: '/pagamento',
+  path: '/pagamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InformacoesRoute = InformacoesRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
+  '/pagamento': typeof PagamentoRoute
   '/presentes': typeof PresentesRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
+  '/pagamento': typeof PagamentoRoute
   '/presentes': typeof PresentesRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
+  '/pagamento': typeof PagamentoRoute
   '/presentes': typeof PresentesRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
+    | '/pagamento'
     | '/presentes'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
+    | '/pagamento'
     | '/presentes'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
+    | '/pagamento'
     | '/presentes'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   ConfirmacaoRoute: typeof ConfirmacaoRoute
   HistoriaRoute: typeof HistoriaRoute
   InformacoesRoute: typeof InformacoesRoute
+  PagamentoRoute: typeof PagamentoRoute
   PresentesRoute: typeof PresentesRoute
 }
 
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/presentes'
       fullPath: '/presentes'
       preLoaderRoute: typeof PresentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento': {
+      id: '/pagamento'
+      path: '/pagamento'
+      fullPath: '/pagamento'
+      preLoaderRoute: typeof PagamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/informacoes': {
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmacaoRoute: ConfirmacaoRoute,
   HistoriaRoute: HistoriaRoute,
   InformacoesRoute: InformacoesRoute,
+  PagamentoRoute: PagamentoRoute,
   PresentesRoute: PresentesRoute,
 }
 export const routeTree = rootRouteImport
