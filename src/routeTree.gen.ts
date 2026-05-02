@@ -16,6 +16,9 @@ import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as ConfirmacaoRouteImport } from './routes/confirmacao'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PagamentoSucessoRouteImport } from './routes/pagamento/sucesso'
+import { Route as PagamentoPendenteRouteImport } from './routes/pagamento/pendente'
+import { Route as PagamentoErroRouteImport } from './routes/pagamento/erro'
 
 const PresentesRoute = PresentesRouteImport.update({
   id: '/presentes',
@@ -52,6 +55,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagamentoSucessoRoute = PagamentoSucessoRouteImport.update({
+  id: '/sucesso',
+  path: '/sucesso',
+  getParentRoute: () => PagamentoRoute,
+} as any)
+const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
+  id: '/pendente',
+  path: '/pendente',
+  getParentRoute: () => PagamentoRoute,
+} as any)
+const PagamentoErroRoute = PagamentoErroRouteImport.update({
+  id: '/erro',
+  path: '/erro',
+  getParentRoute: () => PagamentoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,8 +77,11 @@ export interface FileRoutesByFullPath {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/erro': typeof PagamentoErroRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +89,11 @@ export interface FileRoutesByTo {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/erro': typeof PagamentoErroRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +102,11 @@ export interface FileRoutesById {
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/erro': typeof PagamentoErroRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +118,9 @@ export interface FileRouteTypes {
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/erro'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +130,9 @@ export interface FileRouteTypes {
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/erro'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   id:
     | '__root__'
     | '/'
@@ -109,6 +142,9 @@ export interface FileRouteTypes {
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/erro'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,7 +153,7 @@ export interface RootRouteChildren {
   ConfirmacaoRoute: typeof ConfirmacaoRoute
   HistoriaRoute: typeof HistoriaRoute
   InformacoesRoute: typeof InformacoesRoute
-  PagamentoRoute: typeof PagamentoRoute
+  PagamentoRoute: typeof PagamentoRouteWithChildren
   PresentesRoute: typeof PresentesRoute
 }
 
@@ -172,8 +208,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pagamento/sucesso': {
+      id: '/pagamento/sucesso'
+      path: '/sucesso'
+      fullPath: '/pagamento/sucesso'
+      preLoaderRoute: typeof PagamentoSucessoRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
+    '/pagamento/pendente': {
+      id: '/pagamento/pendente'
+      path: '/pendente'
+      fullPath: '/pagamento/pendente'
+      preLoaderRoute: typeof PagamentoPendenteRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
+    '/pagamento/erro': {
+      id: '/pagamento/erro'
+      path: '/erro'
+      fullPath: '/pagamento/erro'
+      preLoaderRoute: typeof PagamentoErroRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
   }
 }
+
+interface PagamentoRouteChildren {
+  PagamentoErroRoute: typeof PagamentoErroRoute
+  PagamentoPendenteRoute: typeof PagamentoPendenteRoute
+  PagamentoSucessoRoute: typeof PagamentoSucessoRoute
+}
+
+const PagamentoRouteChildren: PagamentoRouteChildren = {
+  PagamentoErroRoute: PagamentoErroRoute,
+  PagamentoPendenteRoute: PagamentoPendenteRoute,
+  PagamentoSucessoRoute: PagamentoSucessoRoute,
+}
+
+const PagamentoRouteWithChildren = PagamentoRoute._addFileChildren(
+  PagamentoRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -181,7 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmacaoRoute: ConfirmacaoRoute,
   HistoriaRoute: HistoriaRoute,
   InformacoesRoute: InformacoesRoute,
-  PagamentoRoute: PagamentoRoute,
+  PagamentoRoute: PagamentoRouteWithChildren,
   PresentesRoute: PresentesRoute,
 }
 export const routeTree = rootRouteImport

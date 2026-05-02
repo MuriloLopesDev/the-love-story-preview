@@ -1,14 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Copy, CreditCard, QrCode, Wallet, Lock, Gift } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { ArrowLeft, CreditCard, Gift, Lock } from "lucide-react";
+import { getSupabaseClient } from "@/lib/supabase";
 
 type SearchParams = { title?: string; price?: number };
 
 export const Route = createFileRoute("/pagamento")({
   head: () => ({
     meta: [
-      { title: "Pagamento — Mirelle & Murilo" },
-      { name: "description", content: "Finalize seu presente com Pix, crédito ou débito." },
+      { title: "Pagamento - Mirelle & Murilo" },
+      { name: "description", content: "Finalize seu presente pelo Mercado Pago." },
     ],
   }),
   validateSearch: (search: Record<string, unknown>): SearchParams => ({
@@ -18,67 +19,80 @@ export const Route = createFileRoute("/pagamento")({
   component: Pagamento,
 });
 
-type Method = "pix" | "credit" | "debit";
-
 function Pagamento() {
   const { title, price } = Route.useSearch();
-  const navigate = useNavigate();
-
   const giftTitle = title ?? "Presente para os noivos";
   const giftPrice = price && price > 0 ? price : 200;
+  const formattedPrice = formatCurrency(giftPrice);
 
-  const [method, setMethod] = useState<Method>("pix");
-  const [installments, setInstallments] = useState(1);
-  const [copied, setCopied] = useState(false);
-  const [done, setDone] = useState(false);
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const maxInstallments = useMemo(() => {
-    if (giftPrice >= 600) return 12;
-    if (giftPrice >= 300) return 10;
-    if (giftPrice >= 150) return 6;
-    if (giftPrice >= 50) return 3;
-    return 1;
-  }, [giftPrice]);
-
-  const installmentOptions = useMemo(
-    () => Array.from({ length: maxInstallments }, (_, i) => i + 1),
-    [maxInstallments],
-  );
-
-  const installmentValue = giftPrice / installments;
-
-  const pixCode =
-    "00020126360014BR.GOV.BCB.PIX0114mirellemurilo52040000530398654" +
-    giftPrice.toFixed(2).padStart(7, "0") +
-    "5802BR5921Mirelle e Murilo6009SAO PAULO62070503***6304ABCD";
-
-  function copyPix() {
-    navigator.clipboard.writeText(pixCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  function handlePay(e: React.FormEvent) {
+  async function handlePay(e: FormEvent) {
     e.preventDefault();
-    setDone(true);
-    setTimeout(() => navigate({ to: "/" }), 3500);
-  }
 
-  if (done) {
-    return (
-      <div className="px-6 py-24 min-h-[70vh] flex items-center justify-center">
-        <div className="max-w-md text-center bg-card border border-border/70 rounded-xl p-10 shadow-[var(--shadow-card)] animate-[fade-up_0.6s_ease]">
-          <div className="mx-auto size-16 rounded-full bg-secondary flex items-center justify-center text-olive">
-            <Check className="size-8" />
-          </div>
-          <h1 className="mt-6 font-display text-4xl">Obrigado!</h1>
-          <p className="mt-4 text-foreground/70 font-serif-italic">
-            Seu presente foi recebido com muito carinho. Mirelle & Murilo agradecem do fundo do coração.
-          </p>
-          <p className="mt-6 text-sm text-muted-foreground">Você será redirecionado para o início…</p>
-        </div>
-      </div>
-    );
+    const cleanBuyerName = buyerName.trim().slice(0, 120);
+    const cleanBuyerPhone = buyerPhone.trim().slice(0, 30);
+
+    if (!cleanBuyerName || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const supabase = getSupabaseClient();
+      const { data: order, error: orderError } = await supabase
+        .from("gift_orders")
+        .insert({
+          gift_title: giftTitle,
+          amount: giftPrice,
+          buyer_name: cleanBuyerName,
+          buyer_phone: cleanBuyerPhone || null,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (orderError) throw orderError;
+
+      const orderId = String(order.id);
+      const { data: preference, error: preferenceError } = await supabase.functions.invoke(
+        "create-mercado-pago-preference",
+        {
+          body: {
+            orderId,
+            title: giftTitle,
+            price: giftPrice,
+            buyerName: cleanBuyerName,
+            buyerPhone: cleanBuyerPhone,
+          },
+        },
+      );
+
+      if (preferenceError) throw preferenceError;
+
+      const initPoint = preference?.init_point;
+      const preferenceId = preference?.preference_id;
+
+      if (!initPoint) {
+        throw new Error("Mercado Pago nao retornou o link de pagamento.");
+      }
+
+      if (preferenceId) {
+        await supabase
+          .from("gift_orders")
+          .update({ mercado_pago_preference_id: preferenceId })
+          .eq("id", orderId);
+      }
+
+      window.location.href = initPoint;
+    } catch (err) {
+      console.error(err);
+      setError("Nao foi possivel iniciar o pagamento. Tente novamente em instantes.");
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -95,115 +109,61 @@ function Pagamento() {
           <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Pagamento</p>
           <h1 className="mt-6 font-display text-4xl sm:text-5xl">Finalize seu presente</h1>
           <p className="mt-4 text-foreground/70">
-            Escolha a forma de pagamento que preferir. Tudo seguro e simples.
+            Informe seus dados e siga para o checkout seguro do Mercado Pago.
           </p>
         </header>
 
         <div className="mt-12 grid lg:grid-cols-[1fr_360px] gap-8">
-          {/* LEFT — Method + form */}
           <div className="space-y-8">
-            {/* Method selector */}
-            <div className="grid grid-cols-3 gap-3">
-              <MethodButton active={method === "pix"} onClick={() => setMethod("pix")} icon={<QrCode className="size-5" />} label="Pix" />
-              <MethodButton active={method === "credit"} onClick={() => setMethod("credit")} icon={<CreditCard className="size-5" />} label="Crédito" />
-              <MethodButton active={method === "debit"} onClick={() => setMethod("debit")} icon={<Wallet className="size-5" />} label="Débito" />
-            </div>
+            <form
+              onSubmit={handlePay}
+              className="bg-card border border-border/70 rounded-xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
+            >
+              <div>
+                <h2 className="font-display text-2xl">Dados de quem presenteia</h2>
+                <p className="mt-2 text-sm text-foreground/70">
+                  Usaremos essas informações apenas para identificar seu presente.
+                </p>
+              </div>
 
-            <div className="bg-card border border-border/70 rounded-xl p-6 sm:p-8 shadow-[var(--shadow-card)]">
-              {method === "pix" && (
-                <div>
-                  <h2 className="font-display text-2xl">Pague com Pix</h2>
-                  <p className="mt-2 text-sm text-foreground/70">
-                    Escaneie o QR Code ou copie o código abaixo no app do seu banco.
-                  </p>
+              <Field
+                label="Nome de quem está presenteando"
+                required
+                maxLength={120}
+                value={buyerName}
+                onChange={(e) => setBuyerName(e.target.value)}
+                placeholder="Seu nome completo"
+              />
 
-                  <div className="mt-6 flex flex-col sm:flex-row gap-6 items-center">
-                    <div className="size-44 shrink-0 rounded-lg bg-secondary/60 border border-border/70 flex items-center justify-center">
-                      <QrCode className="size-28 text-olive" strokeWidth={1} />
-                    </div>
-                    <div className="flex-1 w-full">
-                      <p className="text-xs uppercase tracking-widest text-muted-foreground">Pix copia e cola</p>
-                      <code className="mt-2 block px-3 py-3 rounded-md bg-secondary/60 font-mono text-xs break-all max-h-24 overflow-auto">
-                        {pixCode}
-                      </code>
-                      <button
-                        onClick={copyPix}
-                        type="button"
-                        className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-all"
-                      >
-                        {copied ? <><Check className="size-4" /> Código copiado</> : <><Copy className="size-4" /> Copiar código Pix</>}
-                      </button>
-                    </div>
-                  </div>
+              <Field
+                label="WhatsApp (opcional)"
+                maxLength={30}
+                value={buyerPhone}
+                onChange={(e) => setBuyerPhone(e.target.value)}
+                placeholder="(11) 99999-9999"
+              />
 
-                  <button
-                    onClick={handlePay}
-                    className="mt-6 w-full rounded-full border border-olive/40 text-olive py-3 text-sm font-medium hover:bg-olive hover:text-primary-foreground transition-colors"
-                  >
-                    Já fiz o pagamento
-                  </button>
-                </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3.5 text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-70"
+              >
+                <CreditCard className="size-4" />
+                {isSubmitting ? "Abrindo pagamento..." : "Ir para pagamento"}
+              </button>
+
+              {error && (
+                <p className="text-sm text-center text-destructive" role="alert">
+                  {error}
+                </p>
               )}
-
-              {(method === "credit" || method === "debit") && (
-                <form onSubmit={handlePay} className="space-y-5">
-                  <div>
-                    <h2 className="font-display text-2xl">
-                      {method === "credit" ? "Cartão de crédito" : "Cartão de débito"}
-                    </h2>
-                    <p className="mt-2 text-sm text-foreground/70">Preencha os dados do seu cartão.</p>
-                  </div>
-
-                  <Field label="Nome impresso no cartão" placeholder="Como está no cartão" required />
-                  <Field label="Número do cartão" placeholder="0000 0000 0000 0000" inputMode="numeric" maxLength={19} required />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Validade" placeholder="MM/AA" maxLength={5} required />
-                    <Field label="CVV" placeholder="123" inputMode="numeric" maxLength={4} required />
-                  </div>
-
-                  <Field label="CPF do titular" placeholder="000.000.000-00" inputMode="numeric" required />
-
-                  {method === "credit" && (
-                    <div>
-                      <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                        Parcelamento
-                      </label>
-                      <select
-                        value={installments}
-                        onChange={(e) => setInstallments(Number(e.target.value))}
-                        className="w-full px-4 py-3 rounded-md bg-background border border-border/70 text-sm focus:outline-none focus:border-olive transition-colors"
-                      >
-                        {installmentOptions.map((n) => (
-                          <option key={n} value={n}>
-                            {n}x de R$ {(giftPrice / n).toFixed(2).replace(".", ",")}
-                            {n === 1 ? " à vista" : " sem juros"}
-                          </option>
-                        ))}
-                      </select>
-                      <p className="mt-2 text-xs text-muted-foreground font-serif-italic">
-                        Parcelamento disponível conforme o valor do presente (até {maxInstallments}x).
-                      </p>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3.5 text-sm font-medium hover:bg-primary/90 transition-all"
-                  >
-                    <Lock className="size-4" />
-                    Pagar R$ {giftPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </button>
-                </form>
-              )}
-            </div>
+            </form>
 
             <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Lock className="size-3" /> Ambiente seguro · seus dados são criptografados
+              <Lock className="size-3" /> Checkout seguro processado pelo Mercado Pago
             </p>
           </div>
 
-          {/* RIGHT — Summary */}
           <aside className="bg-card border border-border/70 rounded-xl p-6 h-fit lg:sticky lg:top-24 shadow-[var(--shadow-card)]">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Resumo do presente</p>
             <div className="mt-4 flex items-start gap-3">
@@ -212,23 +172,15 @@ function Pagamento() {
               </div>
               <div>
                 <p className="font-display text-lg leading-tight">{giftTitle}</p>
-                <p className="text-xs text-muted-foreground font-serif-italic mt-1">Mirelle & Murilo · 10.10.2026</p>
+                <p className="text-xs text-muted-foreground font-serif-italic mt-1">
+                  Mirelle & Murilo - 10.10.2026
+                </p>
               </div>
             </div>
 
-            <div className="mt-6 border-t border-border/70 pt-4 space-y-2 text-sm">
-              <Row label="Valor do presente" value={`R$ ${giftPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} />
-              <Row label="Forma de pagamento" value={method === "pix" ? "Pix" : method === "credit" ? "Crédito" : "Débito"} />
-              {method === "credit" && (
-                <Row label="Parcelamento" value={`${installments}x de R$ ${installmentValue.toFixed(2).replace(".", ",")}`} />
-              )}
-            </div>
-
-            <div className="mt-4 border-t border-border/70 pt-4 flex items-end justify-between">
+            <div className="mt-6 border-t border-border/70 pt-4 flex items-end justify-between">
               <span className="text-sm text-foreground/70">Total</span>
-              <span className="font-display text-2xl text-olive">
-                R$ {giftPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </span>
+              <span className="font-display text-2xl text-olive">{formattedPrice}</span>
             </div>
           </aside>
         </div>
@@ -237,44 +189,26 @@ function Pagamento() {
   );
 }
 
-function MethodButton({
-  active, onClick, icon, label,
-}: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col items-center justify-center gap-2 rounded-xl border py-4 text-sm transition-all ${
-        active
-          ? "border-olive bg-secondary/60 text-olive shadow-[var(--shadow-card)]"
-          : "border-border/70 bg-card text-foreground/70 hover:border-olive/50"
-      }`}
-    >
-      {icon}
-      <span className="font-medium">{label}</span>
-    </button>
-  );
+function formatCurrency(value: number) {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 }
 
 function Field({
-  label, ...props
+  label,
+  ...props
 }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
-      <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">{label}</label>
+      <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
+        {label}
+      </label>
       <input
         {...props}
         className="w-full px-4 py-3 rounded-md bg-background border border-border/70 text-sm focus:outline-none focus:border-olive transition-colors"
       />
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-foreground/70">{label}</span>
-      <span className="font-medium">{value}</span>
     </div>
   );
 }

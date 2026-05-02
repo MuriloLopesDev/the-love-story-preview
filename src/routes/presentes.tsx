@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Copy, Check, CreditCard, Plane, Gift } from "lucide-react";
+import { CreditCard, Plane } from "lucide-react";
 
 export const Route = createFileRoute("/presentes")({
   head: () => ({
@@ -12,9 +11,8 @@ export const Route = createFileRoute("/presentes")({
   component: Presentes,
 });
 
-const PIX_KEY = "mirelle.murilo@casamento.com";
-
 const honeymoon = [
+  { title: "Presente teste", desc: "Item simbólico para testar o pagamento", price: 0.01 },
   { title: "Passagem aérea", desc: "Voo do casal para a Toscana", price: 980 },
   { title: "Jantar à beira-mar", desc: "Uma noite italiana inesquecível", price: 350 },
   { title: "Tour pelos vinhedos", desc: "Degustação em Chianti", price: 480 },
@@ -29,14 +27,6 @@ const symbolic = [
 ];
 
 function Presentes() {
-  const [copied, setCopied] = useState(false);
-
-  function copyPix() {
-    navigator.clipboard.writeText(PIX_KEY);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   return (
     <div className="px-6 py-20 sm:py-24">
       <div className="max-w-5xl mx-auto">
@@ -49,32 +39,8 @@ function Presentes() {
           </p>
         </header>
 
-        {/* PIX */}
-        <section className="mt-16 bg-card border border-border/70 rounded-xl p-6 sm:p-10 shadow-[var(--shadow-card)]">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-olive">
-              <Gift className="size-5" />
-            </div>
-            <h2 className="font-display text-3xl">Pix dos noivos</h2>
-          </div>
-          <p className="mt-4 text-foreground/70">
-            Use a chave abaixo para nos presentear pelo valor que desejar.
-          </p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center">
-            <code className="flex-1 px-4 py-3 rounded-md bg-secondary/60 font-mono text-sm break-all">
-              {PIX_KEY}
-            </code>
-            <button
-              onClick={copyPix}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-all"
-            >
-              {copied ? <><Check className="size-4" /> Copiado</> : <><Copy className="size-4" /> Copiar chave</>}
-            </button>
-          </div>
-        </section>
-
         {/* HONEYMOON */}
-        <section className="mt-16">
+        <section className="mt-14">
           <div className="flex items-end justify-between flex-wrap gap-2">
             <div>
               <p className="font-serif-italic text-olive">Cotas de lua de mel</p>
@@ -111,14 +77,26 @@ function Presentes() {
 }
 
 function GiftCard({ title, desc, price }: { title: string; desc?: string; price: number }) {
+  const formattedPrice = price.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  const paymentText =
+    price < 12
+      ? "pagamento único"
+      : `ou 12x de ${(price / 12).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}`;
+
   return (
     <div className="group bg-card border border-border/70 rounded-lg p-6 flex flex-col hover:shadow-[var(--shadow-card)] hover:-translate-y-1 transition-all">
       <h3 className="font-display text-xl">{title}</h3>
       {desc && <p className="mt-1 text-sm text-muted-foreground font-serif-italic">{desc}</p>}
       <p className="mt-4 text-2xl font-display text-olive">
-        R$ {price.toLocaleString("pt-BR")}
+        {formattedPrice}
       </p>
-      <p className="text-xs text-muted-foreground">ou 12x de R$ {(price / 12).toFixed(2).replace(".", ",")}</p>
+      <p className="text-xs text-muted-foreground">{paymentText}</p>
       <Link
         to="/pagamento"
         search={{ title, price }}
