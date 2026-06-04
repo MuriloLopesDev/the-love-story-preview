@@ -18,14 +18,14 @@ function Index() {
           height={1024}
         />
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-        <div className="absolute inset-0 bg-background/30" />
+        <div className="absolute inset-0 bg-background/75" />
 
         <div className="relative z-10 text-center px-6 max-w-3xl animate-fade-in-slow">
           <p className="divider-leaf text-sm tracking-[0.3em] uppercase">Save the date</p>
           <h1 className="mt-6 font-display text-6xl sm:text-8xl md:text-9xl leading-[0.95] text-balance">
-            Mirelle
-            <span className="block font-serif-italic text-4xl sm:text-5xl md:text-6xl text-olive my-2">&</span>
             Murilo
+            <span className="block font-serif-italic text-4xl sm:text-5xl md:text-6xl text-olive my-2">&</span>
+            Mirelle
           </h1>
           <p className="mt-6 font-serif-italic text-xl sm:text-2xl text-foreground/80">
             10 de outubro de 2026

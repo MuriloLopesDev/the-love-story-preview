@@ -5,8 +5,8 @@ import couple2 from "@/assets/couple-2.jpg";
 export const Route = createFileRoute("/historia")({
   head: () => ({
     meta: [
-      { title: "Nossa história — Mirelle & Murilo" },
-      { name: "description", content: "Como Mirelle e Murilo se encontraram e decidiram celebrar o amor." },
+      { title: "Nossa história — Murilo & Mirelle" },
+      { name: "description", content: "Como Murilo e Mirelle se encontraram e decidiram celebrar o amor." },
     ],
   }),
   component: Historia,
