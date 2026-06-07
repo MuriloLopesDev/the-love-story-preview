@@ -1,108 +1,89 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Copy, Check, CreditCard, Plane, Gift } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CreditCard, Gift } from "lucide-react";
+import { listarPresentes, type Presente } from "@/services/presentesService";
 
 export const Route = createFileRoute("/presentes")({
   head: () => ({
     meta: [
-      { title: "Presentes — Mirelle & Murilo" },
-      { name: "description", content: "Lista de presentes, Pix e cotas de lua de mel." },
+      { title: "Presentes - Mirelle & Murilo" },
+      { name: "description", content: "Lista de presentes e cotas de lua de mel." },
     ],
   }),
   component: Presentes,
 });
 
-const PIX_KEY = "mirelle.murilo@casamento.com";
-
-const honeymoon = [
-  { title: "Passagem aérea", desc: "Voo do casal para a Toscana", price: 980 },
-  { title: "Jantar à beira-mar", desc: "Uma noite italiana inesquecível", price: 350 },
-  { title: "Tour pelos vinhedos", desc: "Degustação em Chianti", price: 480 },
-  { title: "Hospedagem boutique", desc: "Diária em hotel charmoso", price: 720 },
-];
-
-const symbolic = [
-  { title: "Jogo de taças de cristal", price: 290 },
-  { title: "Aparelho de jantar", price: 540 },
-  { title: "Roupa de cama king", price: 380 },
-  { title: "Conjunto de panelas", price: 690 },
-];
-
 function Presentes() {
-  const [copied, setCopied] = useState(false);
+  const [presentes, setPresentes] = useState<Presente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  function copyPix() {
-    navigator.clipboard.writeText(PIX_KEY);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
+  useEffect(() => {
+    let active = true;
+
+    async function loadPresentes() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await listarPresentes();
+        if (active) setPresentes(data);
+      } catch (err) {
+        console.error("Erro ao carregar presentes:", err);
+        if (active) setError("Não foi possível carregar a lista de presentes agora.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadPresentes();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
-    <div className="px-6 py-20 sm:py-24">
-      <div className="max-w-5xl mx-auto">
+    <div className="px-6 pt-10 pb-20 sm:pt-12 sm:pb-24">
+      <div className="max-w-6xl mx-auto">
         <header className="text-center max-w-2xl mx-auto">
           <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Presentes</p>
           <h1 className="mt-6 font-display text-5xl sm:text-6xl">Com gratidão</h1>
           <p className="mt-6 text-foreground/70 leading-relaxed">
-            Sua presença é o nosso maior presente. Mas, se quiser nos ajudar a construir essa nova fase,
-            preparamos algumas opções com muito carinho.
+            Sua presença é o nosso maior presente. Mas, se quiser nos ajudar a construir essa nova
+            fase, preparamos algumas opções com muito carinho.
           </p>
         </header>
 
-        {/* PIX */}
-        <section className="mt-16 bg-card border border-border/70 rounded-xl p-6 sm:p-10 shadow-[var(--shadow-card)]">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-secondary flex items-center justify-center text-olive">
-              <Gift className="size-5" />
-            </div>
-            <h2 className="font-display text-3xl">Pix dos noivos</h2>
-          </div>
-          <p className="mt-4 text-foreground/70">
-            Use a chave abaixo para nos presentear pelo valor que desejar.
+        {loading && (
+          <p className="mt-12 text-center text-muted-foreground font-serif-italic">
+            Carregando lista de presentes...
           </p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center">
-            <code className="flex-1 px-4 py-3 rounded-md bg-secondary/60 font-mono text-sm break-all">
-              {PIX_KEY}
-            </code>
-            <button
-              onClick={copyPix}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-all"
-            >
-              {copied ? <><Check className="size-4" /> Copiado</> : <><Copy className="size-4" /> Copiar chave</>}
-            </button>
-          </div>
-        </section>
+        )}
 
-        {/* HONEYMOON */}
-        <section className="mt-16">
-          <div className="flex items-end justify-between flex-wrap gap-2">
-            <div>
-              <p className="font-serif-italic text-olive">Cotas de lua de mel</p>
-              <h2 className="font-display text-3xl">Toscana, Itália</h2>
+        {!loading && error && (
+          <div className="mt-12 bg-card border border-border/70 rounded-lg p-6 text-center text-muted-foreground shadow-[var(--shadow-card)]">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && presentes.length === 0 && (
+          <div className="mt-12 bg-card border border-border/70 rounded-lg p-6 text-center text-muted-foreground shadow-[var(--shadow-card)]">
+            Nenhum presente ativo cadastrado no momento.
+          </div>
+        )}
+
+        {!loading && !error && presentes.length > 0 && (
+          <section className="mt-12">
+            <div className="grid grid-cols-2 min-[420px]:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 items-stretch">
+              {presentes.map((presente, index) => (
+                <GiftCard key={presente.id} presente={presente} index={index} />
+              ))}
             </div>
-            <Plane className="size-5 text-olive" />
-          </div>
-          <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {honeymoon.map((g) => (
-              <GiftCard key={g.title} title={g.title} desc={g.desc} price={g.price} />
-            ))}
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* SYMBOLIC */}
-        <section className="mt-16">
-          <div>
-            <p className="font-serif-italic text-olive">Presentes simbólicos</p>
-            <h2 className="font-display text-3xl">Para o nosso lar</h2>
-          </div>
-          <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {symbolic.map((g) => (
-              <GiftCard key={g.title} title={g.title} price={g.price} />
-            ))}
-          </div>
-        </section>
-
-        <p className="mt-16 text-center text-sm text-muted-foreground font-serif-italic">
+        <p className="mt-12 text-center text-sm text-muted-foreground font-serif-italic">
           Pagamentos no crédito podem ser parcelados em até 12x.
         </p>
       </div>
@@ -110,22 +91,77 @@ function Presentes() {
   );
 }
 
-function GiftCard({ title, desc, price }: { title: string; desc?: string; price: number }) {
+function GiftCard({ presente, index }: { presente: Presente; index: number }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const hasImage = Boolean(presente.imagem_url) && !imageFailed;
+  const price = presente.preco.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  const installment = (presente.preco / 12).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
   return (
-    <div className="group bg-card border border-border/70 rounded-lg p-6 flex flex-col hover:shadow-[var(--shadow-card)] hover:-translate-y-1 transition-all">
-      <h3 className="font-display text-xl">{title}</h3>
-      {desc && <p className="mt-1 text-sm text-muted-foreground font-serif-italic">{desc}</p>}
-      <p className="mt-4 text-2xl font-display text-olive">
-        R$ {price.toLocaleString("pt-BR")}
-      </p>
-      <p className="text-xs text-muted-foreground">ou 12x de R$ {(price / 12).toFixed(2).replace(".", ",")}</p>
-      <Link
-        to="/pagamento"
-        search={{ title, price }}
-        className="mt-5 inline-flex items-center justify-center gap-2 rounded-full border border-primary/40 text-primary py-2.5 text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
-      >
-        <CreditCard className="size-4" /> Presentear
-      </Link>
-    </div>
+    <article
+      className="group animate-fade-up flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_16px_44px_-34px_rgba(69,81,48,0.55)] transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/35 hover:shadow-[0_24px_58px_-32px_rgba(69,81,48,0.72)]"
+      style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+    >
+      <div className="h-20 min-[420px]:h-24 sm:h-28 md:h-32 lg:h-auto lg:aspect-[4/3] overflow-hidden bg-secondary/70">
+        {hasImage ? (
+          <img
+            src={presente.imagem_url ?? ""}
+            alt={presente.titulo}
+            onError={() => setImageFailed(true)}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 sm:gap-2 lg:gap-3 bg-[linear-gradient(135deg,var(--secondary),var(--champagne))] text-primary">
+            <span className="flex size-9 sm:size-11 lg:size-14 items-center justify-center rounded-full bg-card/80 shadow-[var(--shadow-soft)]">
+              <Gift className="size-5 sm:size-6 lg:size-7" />
+            </span>
+            <span className="text-[0.6rem] sm:text-[0.65rem] lg:text-xs uppercase tracking-[0.18em] lg:tracking-[0.24em] text-primary/70">
+              Presente
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-3 sm:p-4 lg:p-6">
+        <div className="flex-1">
+          <h3 className="font-display text-base sm:text-lg lg:text-2xl leading-tight">
+            {presente.titulo}
+          </h3>
+          {presente.descricao && (
+            <p className="mt-2 lg:mt-3 line-clamp-2 lg:min-h-12 text-[0.7rem] sm:text-xs lg:text-sm leading-snug lg:leading-relaxed text-muted-foreground">
+              {presente.descricao}
+            </p>
+          )}
+        </div>
+
+        <div className="mt-3 sm:mt-4 lg:mt-6 border-t border-border/70 pt-3 sm:pt-4 lg:pt-5">
+          <p className="font-display text-xl sm:text-2xl lg:text-3xl leading-none text-olive">
+            {price}
+          </p>
+          <p className="mt-1 lg:mt-2 text-[0.65rem] sm:text-[0.7rem] lg:text-xs text-muted-foreground">
+            ou 12x de {installment}
+          </p>
+        </div>
+
+        <Link
+          to="/pagamento"
+          search={{
+            presenteId: presente.id,
+            title: presente.titulo,
+            price: presente.preco,
+          }}
+          className="mt-3 sm:mt-4 lg:mt-6 inline-flex w-full items-center justify-center gap-1.5 lg:gap-2 rounded-full bg-primary px-3 lg:px-5 py-2 sm:py-2.5 lg:py-3 text-[0.7rem] sm:text-xs lg:text-sm font-medium text-primary-foreground shadow-[0_14px_30px_-22px_rgba(69,81,48,0.85)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-[0_18px_34px_-20px_rgba(69,81,48,0.9)]"
+        >
+          <CreditCard className="size-3.5 lg:size-4 text-primary-foreground" /> Presentear
+        </Link>
+      </div>
+    </article>
   );
 }

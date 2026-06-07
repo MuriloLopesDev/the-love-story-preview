@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
-import { addRsvp } from "@/lib/rsvp-store";
+import { registrarConfirmacaoPresenca } from "@/services/confirmacaoPresencaService";
 
 export const Route = createFileRoute("/confirmacao")({
   head: () => ({
@@ -105,15 +105,18 @@ function Confirmacao() {
     setIsSubmitting(true);
 
     try {
-      addRsvp({
-        name: guestName.slice(0, 100),
-        attending: form.attending,
-        companions: form.attending === "yes" ? companionCount : 0,
-        companionNames,
-        note: note.slice(0, 500),
+      await registrarConfirmacaoPresenca({
+        nome_convidado: guestName.slice(0, 100),
+        telefone: null,
+        codigo_convite: null,
+        vai_comparecer: form.attending === "yes",
+        quantidade_acompanhantes: form.attending === "yes" ? companionCount : 0,
+        nomes_acompanhantes: companionNames,
+        mensagem_noivos: note ? note.slice(0, 500) : null,
       });
       setSubmitted(true);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao registrar confirmação:", error);
       setFormError("Não foi possível registrar sua resposta. Tente novamente em instantes.");
     } finally {
       setIsSubmitting(false);
