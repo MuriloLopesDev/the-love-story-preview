@@ -6,7 +6,7 @@ import { listarPresentes, type Presente } from "@/services/presentesService";
 export const Route = createFileRoute("/presentes")({
   head: () => ({
     meta: [
-      { title: "Presentes - Mirelle & Murilo" },
+      { title: "Presentes - Murilo & Mirelle" },
       { name: "description", content: "Lista de presentes e cotas de lua de mel." },
     ],
   }),

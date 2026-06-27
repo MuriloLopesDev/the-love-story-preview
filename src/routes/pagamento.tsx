@@ -12,7 +12,7 @@ type SearchParams = { presenteId?: string; title?: string; price?: number };
 export const Route = createFileRoute("/pagamento")({
   head: () => ({
     meta: [
-      { title: "Pagamento - Mirelle & Murilo" },
+      { title: "Pagamento - Murilo & Mirelle" },
       { name: "description", content: "Finalize seu presente com Mercado Pago." },
     ],
   }),
@@ -244,7 +244,7 @@ function Pagamento() {
               <div>
                 <p className="font-display text-lg leading-tight">{giftTitle}</p>
                 <p className="text-xs text-muted-foreground font-serif-italic mt-1">
-                  Mirelle & Murilo · 10.10.2026
+                  Murilo & Mirelle · 10.10.2026
                 </p>
               </div>
             </div>

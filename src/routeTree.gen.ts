@@ -14,8 +14,12 @@ import { Route as PagamentoRouteImport } from './routes/pagamento'
 import { Route as InformacoesRouteImport } from './routes/informacoes'
 import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as ConfirmacaoRouteImport } from './routes/confirmacao'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PagamentoSucessoRouteImport } from './routes/pagamento.sucesso'
+import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
+import { Route as PagamentoFalhaRouteImport } from './routes/pagamento.falha'
 
 const PresentesRoute = PresentesRouteImport.update({
   id: '/presentes',
@@ -42,6 +46,11 @@ const ConfirmacaoRoute = ConfirmacaoRouteImport.update({
   path: '/confirmacao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -52,72 +61,112 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagamentoSucessoRoute = PagamentoSucessoRouteImport.update({
+  id: '/sucesso',
+  path: '/sucesso',
+  getParentRoute: () => PagamentoRoute,
+} as any)
+const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
+  id: '/pendente',
+  path: '/pendente',
+  getParentRoute: () => PagamentoRoute,
+} as any)
+const PagamentoFalhaRoute = PagamentoFalhaRouteImport.update({
+  id: '/falha',
+  path: '/falha',
+  getParentRoute: () => PagamentoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/falha': typeof PagamentoFalhaRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/falha': typeof PagamentoFalhaRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
   '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
-  '/pagamento': typeof PagamentoRoute
+  '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
+  '/pagamento/falha': typeof PagamentoFalhaRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/sucesso': typeof PagamentoSucessoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin-login'
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/falha'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/admin-login'
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/falha'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin-login'
     | '/confirmacao'
     | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
+    | '/pagamento/falha'
+    | '/pagamento/pendente'
+    | '/pagamento/sucesso'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ConfirmacaoRoute: typeof ConfirmacaoRoute
   HistoriaRoute: typeof HistoriaRoute
   InformacoesRoute: typeof InformacoesRoute
-  PagamentoRoute: typeof PagamentoRoute
+  PagamentoRoute: typeof PagamentoRouteWithChildren
   PresentesRoute: typeof PresentesRoute
 }
 
@@ -158,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfirmacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -172,16 +228,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pagamento/sucesso': {
+      id: '/pagamento/sucesso'
+      path: '/sucesso'
+      fullPath: '/pagamento/sucesso'
+      preLoaderRoute: typeof PagamentoSucessoRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
+    '/pagamento/pendente': {
+      id: '/pagamento/pendente'
+      path: '/pendente'
+      fullPath: '/pagamento/pendente'
+      preLoaderRoute: typeof PagamentoPendenteRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
+    '/pagamento/falha': {
+      id: '/pagamento/falha'
+      path: '/falha'
+      fullPath: '/pagamento/falha'
+      preLoaderRoute: typeof PagamentoFalhaRouteImport
+      parentRoute: typeof PagamentoRoute
+    }
   }
 }
+
+interface PagamentoRouteChildren {
+  PagamentoFalhaRoute: typeof PagamentoFalhaRoute
+  PagamentoPendenteRoute: typeof PagamentoPendenteRoute
+  PagamentoSucessoRoute: typeof PagamentoSucessoRoute
+}
+
+const PagamentoRouteChildren: PagamentoRouteChildren = {
+  PagamentoFalhaRoute: PagamentoFalhaRoute,
+  PagamentoPendenteRoute: PagamentoPendenteRoute,
+  PagamentoSucessoRoute: PagamentoSucessoRoute,
+}
+
+const PagamentoRouteWithChildren = PagamentoRoute._addFileChildren(
+  PagamentoRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ConfirmacaoRoute: ConfirmacaoRoute,
   HistoriaRoute: HistoriaRoute,
   InformacoesRoute: InformacoesRoute,
-  PagamentoRoute: PagamentoRoute,
+  PagamentoRoute: PagamentoRouteWithChildren,
   PresentesRoute: PresentesRoute,
 }
 export const routeTree = rootRouteImport

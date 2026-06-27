@@ -5,7 +5,7 @@ import venueImg from "@/assets/venue.jpg";
 export const Route = createFileRoute("/informacoes")({
   head: () => ({
     meta: [
-      { title: "Informações - Mirelle & Murilo" },
+      { title: "Informações - Murilo & Mirelle" },
       { name: "description", content: "Data, horário, local da cerimônia e da festa, dress code." },
     ],
   }),

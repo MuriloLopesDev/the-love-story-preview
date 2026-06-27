@@ -31,7 +31,7 @@ serve(async (req) => {
 
     if (!mercadoPagoAccessToken) {
       throw new Error("MERCADO_PAGO_ACCESS_TOKEN nao configurado");
-    }
+  }
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       throw new Error("Credenciais administrativas do Supabase nao configuradas");
@@ -111,7 +111,9 @@ serve(async (req) => {
         },
       },
       external_reference: pedido.id,
+      notification_url: `${supabaseUrl}/functions/v1/webhook-mercado-pago?source_news=webhooks`,
     };
+
 
     if (siteUrl?.startsWith("https://")) {
       preferencePayload.back_urls = {
