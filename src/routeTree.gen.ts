@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PresentesRouteImport } from './routes/presentes'
 import { Route as PagamentoRouteImport } from './routes/pagamento'
 import { Route as InformacoesRouteImport } from './routes/informacoes'
-import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as ConfirmacaoRouteImport } from './routes/confirmacao'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -34,11 +33,6 @@ const PagamentoRoute = PagamentoRouteImport.update({
 const InformacoesRoute = InformacoesRouteImport.update({
   id: '/informacoes',
   path: '/informacoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriaRoute = HistoriaRouteImport.update({
-  id: '/historia',
-  path: '/historia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfirmacaoRoute = ConfirmacaoRouteImport.update({
@@ -82,7 +76,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
-  '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
   '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
@@ -95,7 +88,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
-  '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
   '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
@@ -109,7 +101,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/admin-login': typeof AdminLoginRoute
   '/confirmacao': typeof ConfirmacaoRoute
-  '/historia': typeof HistoriaRoute
   '/informacoes': typeof InformacoesRoute
   '/pagamento': typeof PagamentoRouteWithChildren
   '/presentes': typeof PresentesRoute
@@ -124,7 +115,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-login'
     | '/confirmacao'
-    | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
@@ -137,7 +127,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-login'
     | '/confirmacao'
-    | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
@@ -150,7 +139,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-login'
     | '/confirmacao'
-    | '/historia'
     | '/informacoes'
     | '/pagamento'
     | '/presentes'
@@ -164,7 +152,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ConfirmacaoRoute: typeof ConfirmacaoRoute
-  HistoriaRoute: typeof HistoriaRoute
   InformacoesRoute: typeof InformacoesRoute
   PagamentoRoute: typeof PagamentoRouteWithChildren
   PresentesRoute: typeof PresentesRoute
@@ -191,13 +178,6 @@ declare module '@tanstack/react-router' {
       path: '/informacoes'
       fullPath: '/informacoes'
       preLoaderRoute: typeof InformacoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historia': {
-      id: '/historia'
-      path: '/historia'
-      fullPath: '/historia'
-      preLoaderRoute: typeof HistoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirmacao': {
@@ -273,7 +253,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AdminLoginRoute: AdminLoginRoute,
   ConfirmacaoRoute: ConfirmacaoRoute,
-  HistoriaRoute: HistoriaRoute,
   InformacoesRoute: InformacoesRoute,
   PagamentoRoute: PagamentoRouteWithChildren,
   PresentesRoute: PresentesRoute,

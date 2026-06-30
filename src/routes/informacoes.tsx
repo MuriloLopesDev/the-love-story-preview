@@ -17,7 +17,7 @@ const items = [
   { icon: Clock, label: "Horário", value: "Cerimônia às 16h30 • Recepção às 18h30" },
   { icon: MapPin, label: "Cerimônia", value: "Chácara Prímula" },
   { icon: MapPin, label: "Festa", value: "Chácara Prímula" },
-  { icon: Shirt, label: "Dress code", value: "Traje social para casamento" },
+  { icon: Shirt, label: "Dress code", value: "Traje social" },
 ];
 
 const mapsUrl =

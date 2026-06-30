@@ -60,12 +60,6 @@ function Index() {
             Será uma alegria imensa ter você ao nosso lado nesse dia. Reservamos esta página com carinho
             para que você acompanhe cada detalhe do nosso grande dia.
           </p>
-          <Link
-            to="/historia"
-            className="mt-8 inline-flex items-center gap-2 text-olive font-serif-italic text-lg hover:gap-3 transition-all"
-          >
-            conheça a nossa história →
-          </Link>
         </div>
       </section>
     </div>
