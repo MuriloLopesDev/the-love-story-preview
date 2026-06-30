@@ -165,7 +165,7 @@ function Confirmacao() {
     <div className="px-6 py-20 sm:py-24">
       <div className="max-w-xl mx-auto">
         <header className="text-center">
-          <p className="divider-leaf text-xs uppercase tracking-[0.3em]">RSVP</p>
+          <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Murilo & MIrelle</p>
           <h1 className="mt-6 font-display text-5xl">Confirme sua presença</h1>
           <p className="mt-4 text-foreground/70">
             <b>Por favor, responda até 10 de setembro de 2026.</b>
