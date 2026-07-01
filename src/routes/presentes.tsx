@@ -146,7 +146,7 @@ function GiftCard({ presente, index }: { presente: Presente; index: number }) {
             {presente.titulo}
           </h3>
           {presente.descricao && (
-            <p className="mt-2 lg:mt-3 line-clamp-2 lg:min-h-12 text-[0.7rem] sm:text-xs lg:text-sm leading-snug lg:leading-relaxed text-muted-foreground">
+            <p className="mt-2 lg:mt-3 text-[0.7rem] sm:text-xs lg:text-sm leading-snug lg:leading-relaxed text-muted-foreground">
               {presente.descricao}
             </p>
           )}

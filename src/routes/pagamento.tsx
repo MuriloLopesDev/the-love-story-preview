@@ -220,17 +220,27 @@ function Pagamento() {
             <p className="text-xs uppercase tracking-widest text-muted-foreground">
               Resumo do presente
             </p>
-            <div className="mt-4 overflow-hidden rounded-lg bg-secondary/70">
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-white rounded-lg">
               {showGiftImage ? (
-                <img
-                  src={giftImageUrl ?? ""}
-                  alt={giftTitle}
-                  onError={() => setSummaryImageFailed(true)}
-                  className="h-32 sm:h-40 lg:h-44 w-full object-cover"
-                  loading="lazy"
-                />
+                <>
+                  {/* Blurred background to fill the aspect ratio without solid borders */}
+                  <img
+                    src={giftImageUrl ?? ""}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover blur-[8px] scale-110 opacity-35 select-none pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  {/* Sharp foreground image */}
+                  <img
+                    src={giftImageUrl ?? ""}
+                    alt={giftTitle}
+                    onError={() => setSummaryImageFailed(true)}
+                    className="relative z-10 h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                </>
               ) : (
-                <div className="h-28 sm:h-36 lg:h-40 w-full flex items-center justify-center bg-[linear-gradient(135deg,var(--secondary),var(--champagne))] text-olive">
+                <div className="h-full w-full flex items-center justify-center bg-[linear-gradient(135deg,var(--secondary),var(--champagne))] text-olive aspect-square">
                   <div className="size-14 rounded-full bg-card/80 flex items-center justify-center shadow-[var(--shadow-soft)]">
                     <Gift className="size-7" />
                   </div>
