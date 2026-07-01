@@ -108,26 +108,37 @@ function GiftCard({ presente, index }: { presente: Presente; index: number }) {
       className="group animate-fade-up flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_16px_44px_-34px_rgba(69,81,48,0.55)] transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/35 hover:shadow-[0_24px_58px_-32px_rgba(69,81,48,0.72)]"
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
     >
-      <div className="h-20 min-[420px]:h-24 sm:h-28 md:h-32 lg:h-auto lg:aspect-[4/3] overflow-hidden bg-secondary/70">
-        {hasImage ? (
-          <img
-            src={presente.imagem_url ?? ""}
-            alt={presente.titulo}
-            onError={() => setImageFailed(true)}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 sm:gap-2 lg:gap-3 bg-[linear-gradient(135deg,var(--secondary),var(--champagne))] text-primary">
-            <span className="flex size-9 sm:size-11 lg:size-14 items-center justify-center rounded-full bg-card/80 shadow-[var(--shadow-soft)]">
-              <Gift className="size-5 sm:size-6 lg:size-7" />
-            </span>
-            <span className="text-[0.6rem] sm:text-[0.65rem] lg:text-xs uppercase tracking-[0.18em] lg:tracking-[0.24em] text-primary/70">
-              Presente
-            </span>
-          </div>
-        )}
+<div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#f8f6ef]">
+  {hasImage ? (
+    <>
+      <img
+        src={presente.imagem_url ?? ""}
+        alt=""
+        className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-25 select-none pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex h-full w-full items-center justify-center p-2 sm:p-3">
+        <img
+          src={presente.imagem_url ?? ""}
+          alt={presente.titulo}
+          onError={() => setImageFailed(true)}
+          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+          loading="lazy"
+        />
       </div>
+    </>
+  ) : (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 sm:gap-2 lg:gap-3 bg-[linear-gradient(135deg,var(--secondary),var(--champagne))] text-primary">
+      <span className="flex size-9 sm:size-11 lg:size-14 items-center justify-center rounded-full bg-card/80 shadow-[var(--shadow-soft)]">
+        <Gift className="size-5 sm:size-6 lg:size-7" />
+      </span>
+      <span className="text-[0.6rem] sm:text-[0.65rem] lg:text-xs uppercase tracking-[0.18em] lg:tracking-[0.24em] text-primary/70">
+        Presente
+      </span>
+    </div>
+  )}
+</div>
 
       <div className="flex flex-1 flex-col p-3 sm:p-4 lg:p-6">
         <div className="flex-1">
