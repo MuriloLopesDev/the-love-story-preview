@@ -165,7 +165,7 @@ function Confirmacao() {
     <div className="px-6 py-20 sm:py-24">
       <div className="max-w-xl mx-auto">
         <header className="text-center">
-          <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Murilo & MIrelle</p>
+          <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Murilo & Mirelle</p>
           <h1 className="mt-6 font-display text-5xl">Confirme sua presença</h1>
           <p className="mt-4 text-foreground/70">
             <b>Por favor, responda até 10 de setembro de 2026.</b>
@@ -177,7 +177,7 @@ function Confirmacao() {
           className="mt-12 bg-card border border-border/70 rounded-lg p-6 sm:p-8 space-y-6 shadow-[var(--shadow-card)]"
           noValidate
         >
-          <Field label="Nome do convidado">
+          <Field label={<RequiredLabel>Nome do convidado</RequiredLabel>}>
             <input
               name="guestName"
               maxLength={100}
@@ -194,7 +194,7 @@ function Confirmacao() {
             )}
           </Field>
 
-          <Field label="Você poderá comparecer?">
+          <Field label={<RequiredLabel>Você poderá comparecer?</RequiredLabel>}>
             <div className="grid grid-cols-2 gap-3">
               {(["yes", "no"] as const).map((v) => (
                 <button
@@ -260,7 +260,10 @@ function Confirmacao() {
               {form.companionNames.length > 0 && (
                 <div className="space-y-4">
                   {form.companionNames.map((name, index) => (
-                    <Field key={index} label={`Nome do acompanhante ${index + 1}`}>
+                    <Field
+                      key={index}
+                      label={<RequiredLabel>{`Nome do acompanhante ${index + 1}`}</RequiredLabel>}
+                    >
                       <input
                         name="companionNames"
                         maxLength={100}
@@ -334,7 +337,22 @@ function Confirmacao() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function RequiredLabel({ children }: { children: string }) {
+  return (
+    <>
+      {children}
+      <span className="text-red-500"> *</span>
+    </>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="block">
       <span className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">

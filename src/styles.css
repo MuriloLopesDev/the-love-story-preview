@@ -216,20 +216,20 @@
 }
 
 .wedding-envelope-intro__hint {
-  margin-top: clamp(1.25rem, 3vw, 2rem);
-  color: oklch(0.32 0.025 130 / 0.72);
+  margin-top: clamp(1.15rem, 2.8vw, 1.8rem);
+  color: oklch(0.32 0.025 130 / 0.68);
   font-family: var(--font-serif);
-  font-size: clamp(1rem, 2.4vw, 1.22rem);
+  font-size: clamp(1rem, 2.2vw, 1.18rem);
   font-style: italic;
 }
 
 .wedding-envelope {
   position: relative;
-  width: min(82vw, 31rem);
-  aspect-ratio: 1.45;
-  margin-top: clamp(2rem, 6vw, 3.5rem);
+  width: min(84vw, 31.5rem);
+  aspect-ratio: 1.56;
+  margin-top: clamp(1.8rem, 5vw, 3.1rem);
   clip-path: inset(-120% -24% 0 -24%);
-  perspective: 1200px;
+  perspective: 1400px;
   transform-style: preserve-3d;
 }
 
@@ -243,43 +243,63 @@
 }
 
 .wedding-envelope__shadow {
-  inset: 0;
-  border-radius: 0.7rem;
-  background: transparent;
-  box-shadow: 0 1.8rem 2.8rem oklch(0.32 0.025 130 / 0.22);
-  transform: translateZ(-10px);
+  inset: 7% 3% -9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, oklch(0.32 0.025 130 / 0.24), transparent 68%);
+  filter: blur(0.35rem);
+  transform: translateZ(-14px);
   pointer-events: none;
 }
 
 .wedding-envelope__back {
   inset: 0;
-  border: 1px solid oklch(0.42 0.04 130 / 0.3);
-  border-radius: 0.7rem;
-  background: linear-gradient(135deg, oklch(0.52 0.05 130), oklch(0.45 0.05 130));
-  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.1);
+  overflow: hidden;
+  border: 1px solid oklch(0.42 0.04 130 / 0.22);
+  border-radius: 0.95rem;
+  background:
+    linear-gradient(115deg, oklch(1 0 0 / 0.12), transparent 36%),
+    linear-gradient(135deg, oklch(0.55 0.045 132), oklch(0.42 0.04 132));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.18),
+    inset 0 -1.2rem 2.2rem oklch(0.2 0.025 130 / 0.12),
+    0 1.7rem 3rem -1.35rem oklch(0.26 0.025 130 / 0.42);
 }
 
 .wedding-envelope__front {
   inset: auto 0 0;
-  height: 57%;
-  border-radius: 0 0 0.7rem 0.7rem;
+  height: 58%;
+  overflow: hidden;
+  border-radius: 0 0 0.95rem 0.95rem;
   background:
-    linear-gradient(160deg, transparent 49.5%, oklch(0.46 0.05 130) 50%),
-    linear-gradient(200deg, transparent 49.5%, oklch(0.49 0.05 130) 50%),
-    linear-gradient(180deg, oklch(0.52 0.05 130), oklch(0.45 0.05 130));
-  border: 1px solid oklch(0.42 0.04 130 / 0.25);
+    linear-gradient(
+      160deg,
+      transparent 49.6%,
+      oklch(0.43 0.04 132) 50%,
+      oklch(0.47 0.043 132) 100%
+    ),
+    linear-gradient(200deg, transparent 49.6%, oklch(0.5 0.045 132) 50%, oklch(0.45 0.04 132) 100%),
+    linear-gradient(180deg, oklch(0.53 0.045 132), oklch(0.43 0.04 132));
+  border: 1px solid oklch(0.38 0.035 132 / 0.28);
   border-top: 0;
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.09),
+    inset 0 -1.15rem 1.8rem oklch(0.2 0.025 130 / 0.1);
   z-index: 5;
 }
 
 .wedding-envelope__flap--top {
   inset: 0 0 auto;
-  height: 58%;
+  height: 59%;
   z-index: 8;
   transform-origin: 50% 0%;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  background: linear-gradient(180deg, oklch(0.55 0.05 130), oklch(0.48 0.05 130));
-  border-radius: 0.7rem 0.7rem 0 0;
+  background:
+    linear-gradient(115deg, oklch(1 0 0 / 0.1), transparent 34%),
+    linear-gradient(180deg, oklch(0.57 0.045 132), oklch(0.44 0.04 132));
+  border-radius: 0.95rem 0.95rem 0 0;
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.16),
+    0 0.55rem 1rem oklch(0.22 0.025 130 / 0.1);
   transition:
     transform 1200ms cubic-bezier(0.25, 1, 0.5, 1),
     filter 1200ms ease;
@@ -288,37 +308,46 @@
 .wedding-envelope__flap--left,
 .wedding-envelope__flap--right {
   bottom: 0;
-  height: 58%;
+  height: 59%;
   width: 52%;
   z-index: 6;
-  background: oklch(0.47 0.05 130);
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.05), transparent 38%), oklch(0.46 0.04 132);
 }
 
 .wedding-envelope__flap--left {
   left: 0;
   clip-path: polygon(0 0, 100% 100%, 0 100%);
-  border-bottom-left-radius: 0.7rem;
+  border-bottom-left-radius: 0.95rem;
 }
 
 .wedding-envelope__flap--right {
   right: 0;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  border-bottom-right-radius: 0.7rem;
+  border-bottom-right-radius: 0.95rem;
 }
 
 .wedding-envelope__letter {
   left: 9%;
   right: 9%;
-  bottom: -45%;
+  bottom: -49%;
   z-index: 3;
   display: grid;
   justify-items: center;
   min-height: 72%;
-  border: 1px solid oklch(0.72 0.08 85 / 0.28);
-  border-radius: 0.45rem;
-  background: linear-gradient(180deg, oklch(0.99 0.005 95), oklch(0.975 0.008 95)), var(--card);
-  padding: clamp(1rem, 4vw, 1.8rem);
-  box-shadow: 0 0.6rem 1.5rem oklch(0.32 0.025 130 / 0.1);
+  border: 1px solid oklch(0.72 0.08 85 / 0.3);
+  border-radius: 0.6rem;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 49.6%,
+      oklch(0.72 0.08 85 / 0.16) 49.6% 50.4%,
+      transparent 50.4%
+    ),
+    linear-gradient(180deg, oklch(0.995 0.004 95), oklch(0.976 0.008 95));
+  padding: clamp(1rem, 3.7vw, 1.7rem);
+  box-shadow:
+    0 0.6rem 1.5rem oklch(0.32 0.025 130 / 0.1),
+    inset 0 0 0 0.45rem oklch(1 0 0 / 0.55);
   color: var(--primary);
   transform: translateY(0);
   transition: transform 1300ms 600ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -368,39 +397,39 @@
 
 .wedding-envelope__seal {
   left: 50%;
-  top: 54%;
+  top: 53%;
   z-index: 12;
-  width: clamp(3.2rem, 9.5vw, 4.6rem);
-  aspect-ratio: 1;
-  cursor: pointer;
-  border: none;
-  /* Organic slightly irregular wax seal shape */
-  border-radius: 48% 52% 51% 49% / 51% 48% 52% 49%;
-  /* Elegant gold/champagne wax seal palette */
-  background:
-    radial-gradient(circle at 35% 30%, oklch(0.96 0.06 90) 0%, transparent 65%),
-    linear-gradient(135deg, oklch(0.84 0.08 85) 0%, oklch(0.7 0.09 80) 100%);
-  /* 3D shadows for the gold wax button */
-  box-shadow:
-    0 0.5rem 1.25rem oklch(0.2 0.03 130 / 0.25),
-    inset 0 2px 3px oklch(1 0 0 / 0.4),
-    inset 0 -3px 5px oklch(0.2 0.05 80 / 0.5);
-  transform: translate(-50%, -50%);
-  
-  /* Text M&M styling inside seal - engraved look */
   display: grid;
+  width: clamp(3.45rem, 9.2vw, 4.65rem);
+  aspect-ratio: 1;
   place-items: center;
-  color: oklch(0.4 0.06 75); /* Dark bronze/gold */
-  font-family: var(--font-serif);
-  font-size: clamp(0.82rem, 2.5vw, 1.15rem);
-  font-style: italic;
-  font-weight: 600;
-  text-shadow:
-    0 -1px 0 oklch(1 0 0 / 0.25),
-    0 1px 0 oklch(0.1 0.05 75 / 0.8);
-  
-  /* Safe button outline resetting */
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid oklch(0.96 0.06 90 / 0.42);
+  border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%;
+  background:
+    radial-gradient(circle at 34% 28%, oklch(1 0 0 / 0.42) 0 12%, transparent 34%),
+    radial-gradient(circle at 68% 74%, oklch(0.5 0.08 78 / 0.32) 0 13%, transparent 38%),
+    radial-gradient(circle at 26% 76%, oklch(0.92 0.07 88 / 0.28) 0 10%, transparent 31%),
+    conic-gradient(
+      from 18deg,
+      oklch(0.78 0.08 84),
+      oklch(0.92 0.075 88),
+      oklch(0.69 0.09 78),
+      oklch(0.86 0.08 86),
+      oklch(0.74 0.08 82),
+      oklch(0.78 0.08 84)
+    );
+  box-shadow:
+    0 0.65rem 1.35rem -0.35rem oklch(0.2 0.03 130 / 0.38),
+    0 0 0 0.42rem oklch(0.84 0.08 85 / 0.13),
+    inset 0 3px 4px oklch(1 0 0 / 0.34),
+    inset 0 -0.45rem 0.7rem oklch(0.32 0.06 75 / 0.42),
+    inset 0 0 0 0.18rem oklch(0.96 0.06 90 / 0.18);
+  transform: translate(-50%, -50%);
+  color: oklch(0.35 0.05 78);
   outline: none;
+  animation: seal-invite 2200ms ease-in-out infinite;
   transition:
     opacity 600ms cubic-bezier(0.4, 0, 0.2, 1),
     transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -408,12 +437,62 @@
     filter 300ms ease;
 }
 
+.wedding-envelope__seal::before,
+.wedding-envelope__seal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.wedding-envelope__seal::before {
+  background:
+    radial-gradient(circle at 22% 32%, oklch(1 0 0 / 0.16) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 31%, oklch(0.42 0.06 75 / 0.14) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 78%, oklch(1 0 0 / 0.12) 0 1px, transparent 2px),
+    radial-gradient(circle at 58% 52%, oklch(0.3 0.05 75 / 0.13) 0 1px, transparent 2px);
+  background-size:
+    0.95rem 0.95rem,
+    1.1rem 1.1rem,
+    0.8rem 0.8rem,
+    1.25rem 1.25rem;
+  mix-blend-mode: soft-light;
+  opacity: 0.95;
+}
+
+.wedding-envelope__seal::after {
+  inset: 13%;
+  border: 1px solid oklch(0.96 0.065 88 / 0.34);
+  box-shadow:
+    inset 0 1px 1px oklch(1 0 0 / 0.28),
+    inset 0 -2px 3px oklch(0.34 0.055 76 / 0.24);
+}
+
+.wedding-envelope__seal-mark {
+  display: grid;
+  position: relative;
+  z-index: 1;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-size: clamp(0.92rem, 2.55vw, 1.22rem);
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow:
+    0 -1px 0 oklch(1 0 0 / 0.24),
+    0 1px 1px oklch(0.12 0.04 74 / 0.74);
+}
+
 .wedding-envelope__seal:hover {
+  animation: none;
   filter: brightness(1.06) saturate(1.02);
   box-shadow:
-    0 0.65rem 1.5rem oklch(0.2 0.03 130 / 0.3),
-    inset 0 2px 3px oklch(1 0 0 / 0.45),
-    inset 0 -3px 5px oklch(0.2 0.05 80 / 0.5);
+    0 0.85rem 1.65rem -0.35rem oklch(0.2 0.03 130 / 0.42),
+    0 0 0 0.58rem oklch(0.84 0.08 85 / 0.18),
+    inset 0 3px 4px oklch(1 0 0 / 0.38),
+    inset 0 -0.45rem 0.7rem oklch(0.32 0.06 75 / 0.42),
+    inset 0 0 0 0.18rem oklch(0.96 0.06 90 / 0.22);
   transform: translate(-50%, -50%) scale(1.03);
 }
 
@@ -422,6 +501,7 @@
 }
 
 .wedding-envelope__seal:focus-visible {
+  animation: none;
   outline: 3px solid oklch(0.84 0.08 85 / 0.5);
   outline-offset: 0.25rem;
 }
@@ -433,6 +513,7 @@
 .wedding-envelope-intro.is-opening .wedding-envelope__seal,
 .wedding-envelope.is-opening .wedding-envelope__seal {
   opacity: 0;
+  animation: none;
   transform: translate(-50%, -85%) scale(0.68) rotate(-15deg);
   box-shadow: 0 0 0 transparent;
   pointer-events: none;
@@ -446,7 +527,7 @@
 
 .wedding-envelope-intro.is-opening .wedding-envelope__letter,
 .wedding-envelope.is-opening .wedding-envelope__letter {
-  transform: translateY(-75%);
+  transform: translateY(-82%);
 }
 
 .wedding-envelope-intro.is-opening .wedding-envelope-intro__hint,
@@ -478,6 +559,16 @@
   }
 }
 
+@keyframes seal-invite {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -53%) scale(1.025);
+  }
+}
+
 @media (max-width: 520px) {
   .wedding-envelope-intro {
     padding: 1rem;
@@ -494,6 +585,10 @@
     min-height: 76%;
     padding-top: 1.15rem;
   }
+
+  .wedding-envelope__seal {
+    width: clamp(3.2rem, 14vw, 4.15rem);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -505,6 +600,7 @@
   .wedding-envelope__flap--top,
   .wedding-envelope__letter,
   .wedding-envelope__seal {
+    animation: none;
     transition-duration: 1ms;
   }
 }

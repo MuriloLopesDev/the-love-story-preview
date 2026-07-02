@@ -175,7 +175,7 @@ function Pagamento() {
           <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Pagamento</p>
           <h1 className="mt-6 font-display text-4xl sm:text-5xl">Finalize seu presente</h1>
           <p className="mt-4 text-foreground/70">
-            Você será direcionado ao Checkout Pro do Mercado Pago para concluir o pagamento com
+            Você será direcionado ao Mercado Pago para concluir o pagamento com
             segurança.
           </p>
         </header>
@@ -185,14 +185,14 @@ function Pagamento() {
             <div className="bg-card border border-border/70 rounded-xl p-6 sm:p-8 shadow-[var(--shadow-card)]">
               <form onSubmit={handlePay} className="space-y-5" noValidate>
                 <div>
-                  <h2 className="font-display text-2xl">Dados do comprador</h2>
+                  <h2 className="font-display text-2xl">Insira seus dados</h2>
                   <p className="mt-2 text-sm text-foreground/70">
-                    Usaremos essas informações para identificar seu presente e iniciar o checkout.
+                    Usaremos essas informações para identificar seu presente e iniciar o pagamento.
                   </p>
                 </div>
 
                 <Field
-                  label="Nome do comprador"
+                  label={<RequiredLabel>Nome Completo</RequiredLabel>}
                   placeholder="Seu nome completo"
                   value={buyer.name}
                   onChange={(e) => {
@@ -201,9 +201,10 @@ function Pagamento() {
                   }}
                   required
                 />
+                
                 <Field
-                  label="E-mail"
-                  placeholder="seu-email@dominio.com"
+                  label={<RequiredLabel>E-mail</RequiredLabel>}
+                  placeholder="seu@email.com"
                   type="email"
                   value={buyer.email}
                   onChange={(e) => {
@@ -212,8 +213,9 @@ function Pagamento() {
                   }}
                   required
                 />
+                
                 <Field
-                  label="Telefone / WhatsApp"
+                  label={<RequiredLabel>Telefone / WhatsApp</RequiredLabel>}
                   placeholder="(00) 00000-0000"
                   inputMode="tel"
                   value={buyer.phone}
@@ -223,20 +225,6 @@ function Pagamento() {
                   }}
                   required
                 />
-
-                <div className="rounded-lg border border-border/70 bg-secondary/40 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-card flex items-center justify-center text-olive">
-                      <CreditCard className="size-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Checkout Mercado Pago</p>
-                      <p className="text-xs text-muted-foreground">
-                        Pix, crédito, débito e demais opções disponíveis no ambiente seguro.
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
                 {error && (
                   <p className="text-sm text-destructive" role="alert">
@@ -250,13 +238,13 @@ function Pagamento() {
                   className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3.5 text-sm font-medium hover:bg-primary/90 transition-all disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Lock className="size-4" />
-                  {submitting ? "Redirecionando..." : "Pagar com Mercado Pago"}
+                  {submitting ? "Redirecionando..." : "Continuar para pagamento"}
                 </button>
               </form>
             </div>
 
             <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Lock className="size-3" /> Ambiente seguro · pagamento processado pelo Mercado Pago
+              <Lock className="size-3" /> Ambiente seguro
             </p>
           </div>
 
@@ -324,10 +312,19 @@ function Pagamento() {
   );
 }
 
+function RequiredLabel({ children }: { children: string }) {
+  return (
+    <>
+      {children}
+      <span className="text-red-500"> *</span>
+    </>
+  );
+}
+
 function Field({
   label,
   ...props
-}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+}: { label: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
       <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">

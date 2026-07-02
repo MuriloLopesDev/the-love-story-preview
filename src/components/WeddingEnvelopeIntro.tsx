@@ -55,18 +55,20 @@ export function WeddingEnvelopeIntro({ onComplete }: WeddingEnvelopeIntroProps) 
           <div className="wedding-envelope__flap wedding-envelope__flap--left" />
           <div className="wedding-envelope__flap wedding-envelope__flap--right" />
           <div className="wedding-envelope__front" />
-          
+
           <button
             type="button"
             className="wedding-envelope__seal"
             aria-label="Abrir convite de Murilo e Mirelle"
             onClick={openEnvelope}
           >
-            M&M
+            <span className="wedding-envelope__seal-mark">M&M</span>
           </button>
         </div>
 
-        <p className="wedding-envelope-intro__hint">Clique no lacre para abrir o convite</p>
+        <p className="wedding-envelope-intro__hint">
+          Toque no lacre dourado para revelar o convite
+        </p>
       </div>
     </section>
   );
