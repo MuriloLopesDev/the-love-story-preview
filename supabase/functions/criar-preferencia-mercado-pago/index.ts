@@ -46,6 +46,8 @@ serve(async (req) => {
       nome_comprador,
       telefone_comprador,
       email_comprador,
+      descricao_presente,
+      device_id,
     } = body;
 
     if (!titulo_presente || !preco_presente || !nome_comprador || !email_comprador) {
@@ -96,18 +98,33 @@ serve(async (req) => {
       );
     }
 
+    // Split name to support name and surname
+    const nameParts = nome_comprador.trim().split(/\s+/);
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(" ") || "da Silva";
+    const hasSurname = nameParts.length > 1;
+
+    // Secure logs (never log Access Token)
+    console.log(`[Pedido Criado] ID: ${pedido.id}`);
+    console.log(`[Pedido Criado] Email recebido: ${Boolean(email_comprador)}`);
+    console.log(`[Pedido Criado] Sobrenome gerado: ${hasSurname}`);
+    console.log(`[Pedido Criado] Descricao enviada: ${Boolean(descricao_presente)}`);
+    console.log(`[Pedido Criado] Device ID recebido: ${Boolean(device_id)}`);
+
     const preferencePayload: Record<string, unknown> = {
       items: [
         {
           id: presente_id ?? "presente",
           title: titulo_presente,
+          description: descricao_presente || titulo_presente,
           quantity: 1,
           currency_id: "BRL",
           unit_price: Number(preco_presente),
         },
       ],
       payer: {
-        name: nome_comprador,
+        name: firstName,
+        surname: lastName,
         email: email_comprador,
         phone: {
           number: telefone_comprador ?? "",
@@ -132,14 +149,20 @@ serve(async (req) => {
       );
     }
 
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${mercadoPagoAccessToken}`,
+      "Content-Type": "application/json",
+    };
+
+    if (device_id) {
+      headers["X-meli-session-id"] = device_id;
+    }
+
     const mercadoPagoResponse = await fetch(
       "https://api.mercadopago.com/checkout/preferences",
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${mercadoPagoAccessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(preferencePayload),
       },
     );

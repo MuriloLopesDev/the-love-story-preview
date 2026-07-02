@@ -37,6 +37,8 @@ export type CriarPreferenciaMercadoPagoPayload = {
   nome_comprador: string;
   telefone_comprador: string;
   email_comprador: string;
+  descricao_presente?: string | null;
+  device_id?: string | null;
 };
 
 export type CriarPreferenciaMercadoPagoResponse = {

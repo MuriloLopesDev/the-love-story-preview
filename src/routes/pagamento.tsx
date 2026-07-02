@@ -7,6 +7,12 @@ import {
   type Presente,
 } from "@/services/presentesService";
 
+declare global {
+  interface Window {
+    MP_DEVICE_SESSION_ID?: string;
+  }
+}
+
 type SearchParams = { presenteId?: string; title?: string; price?: number };
 
 export const Route = createFileRoute("/pagamento")({
@@ -37,6 +43,18 @@ function Pagamento() {
   const giftPrice = presente?.preco ?? (price && price > 0 ? price : 200);
   const giftImageUrl = presente?.imagem_url ?? null;
   const showGiftImage = Boolean(giftImageUrl) && !summaryImageFailed;
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.mercadopago.com/v2/security.js";
+    script.setAttribute("view", "checkout");
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (!presenteId) {
@@ -121,6 +139,8 @@ function Pagamento() {
       nome_comprador: nomeComprador.slice(0, 100),
       telefone_comprador: telefoneComprador.slice(0, 30),
       email_comprador: emailComprador.slice(0, 100),
+      descricao_presente: presente?.descricao ?? null,
+      device_id: window.MP_DEVICE_SESSION_ID || null,
     };
 
     try {
