@@ -109,7 +109,12 @@ serve(async (req) => {
     console.log(`[Pedido Criado] Email recebido: ${Boolean(email_comprador)}`);
     console.log(`[Pedido Criado] Sobrenome gerado: ${hasSurname}`);
     console.log(`[Pedido Criado] Descricao enviada: ${Boolean(descricao_presente)}`);
-    console.log(`[Pedido Criado] Device ID recebido: ${Boolean(device_id)}`);
+    console.log(`[Pedido Criado] device_id recebido: ${Boolean(device_id)}`);
+    console.log(
+      `[Pedido Criado] device_id_length: ${
+        typeof device_id === "string" ? device_id.length : 0
+      }`,
+    );
 
     const preferencePayload: Record<string, unknown> = {
       items: [
@@ -157,6 +162,12 @@ serve(async (req) => {
     if (device_id) {
       headers["X-meli-session-id"] = device_id;
     }
+
+    console.log(
+      `[Mercado Pago] headers contem X-meli-session-id: ${Boolean(
+        headers["X-meli-session-id"],
+      )}`,
+    );
 
     const mercadoPagoResponse = await fetch(
       "https://api.mercadopago.com/checkout/preferences",
