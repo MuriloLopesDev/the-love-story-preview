@@ -45,9 +45,10 @@ serve(async (req) => {
       preco_presente,
       nome_comprador,
       telefone_comprador,
+      email_comprador,
     } = body;
 
-    if (!titulo_presente || !preco_presente || !nome_comprador) {
+    if (!titulo_presente || !preco_presente || !nome_comprador || !email_comprador) {
       return new Response(
         JSON.stringify({
           error: "Dados obrigatorios ausentes",
@@ -74,6 +75,7 @@ serve(async (req) => {
         preco_presente: Number(preco_presente),
         nome_comprador,
         telefone_comprador: telefone_comprador ?? null,
+        email_comprador,
         status: "pendente",
       })
       .select("id")
@@ -106,6 +108,7 @@ serve(async (req) => {
       ],
       payer: {
         name: nome_comprador,
+        email: email_comprador,
         phone: {
           number: telefone_comprador ?? "",
         },

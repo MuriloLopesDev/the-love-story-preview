@@ -27,7 +27,7 @@ export const Route = createFileRoute("/pagamento")({
 function Pagamento() {
   const { presenteId, title, price } = Route.useSearch();
 
-  const [buyer, setBuyer] = useState({ name: "", phone: "" });
+  const [buyer, setBuyer] = useState({ name: "", phone: "", email: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [presente, setPresente] = useState<Presente | null>(null);
@@ -71,9 +71,21 @@ function Pagamento() {
 
     const nomeComprador = buyer.name.trim();
     const telefoneComprador = buyer.phone.trim();
+    const emailComprador = buyer.email.trim();
 
     if (!nomeComprador) {
       setError("Por favor, informe seu nome para continuarmos.");
+      return;
+    }
+
+    if (!emailComprador) {
+      setError("Por favor, informe seu e-mail para continuarmos.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailComprador)) {
+      setError("Por favor, insira um e-mail válido.");
       return;
     }
 
@@ -108,6 +120,7 @@ function Pagamento() {
       preco_presente: giftPrice,
       nome_comprador: nomeComprador.slice(0, 100),
       telefone_comprador: telefoneComprador.slice(0, 30),
+      email_comprador: emailComprador.slice(0, 100),
     };
 
     try {
@@ -165,6 +178,17 @@ function Pagamento() {
                   onChange={(e) => {
                     setError("");
                     setBuyer({ ...buyer, name: e.target.value });
+                  }}
+                  required
+                />
+                <Field
+                  label="E-mail"
+                  placeholder="seu-email@dominio.com"
+                  type="email"
+                  value={buyer.email}
+                  onChange={(e) => {
+                    setError("");
+                    setBuyer({ ...buyer, email: e.target.value });
                   }}
                   required
                 />

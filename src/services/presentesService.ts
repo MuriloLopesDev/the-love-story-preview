@@ -17,6 +17,7 @@ export type PedidoPresentePayload = {
   preco_presente: number;
   nome_comprador: string;
   telefone_comprador: string | null;
+  email_comprador: string;
   status: "pendente";
 };
 
@@ -35,6 +36,7 @@ export type CriarPreferenciaMercadoPagoPayload = {
   preco_presente: number;
   nome_comprador: string;
   telefone_comprador: string;
+  email_comprador: string;
 };
 
 export type CriarPreferenciaMercadoPagoResponse = {
