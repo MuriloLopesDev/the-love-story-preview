@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Outlet, createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CreditCard, Gift, Lock } from "lucide-react";
+import { ArrowLeft, Check, Copy, ExternalLink, Gift, Loader2, Lock, QrCode } from "lucide-react";
 import {
   buscarPresentePorId,
+  criarPagamentoPix,
   criarPreferenciaMercadoPago,
+  type CriarPagamentoPixResponse,
   type Presente,
 } from "@/services/presentesService";
 
@@ -13,7 +15,16 @@ declare global {
   }
 }
 
-type SearchParams = { presenteId?: string; title?: string; price?: number };
+type SearchParams = {
+  presenteId?: string;
+  title?: string;
+  price?: number;
+  collection_id?: string;
+  collection_status?: string;
+  payment_id?: string;
+  status?: string;
+  external_reference?: string;
+};
 
 export const Route = createFileRoute("/pagamento")({
   head: () => ({
@@ -26,16 +37,32 @@ export const Route = createFileRoute("/pagamento")({
     presenteId: typeof search.presenteId === "string" ? search.presenteId : undefined,
     title: typeof search.title === "string" ? search.title : undefined,
     price: search.price ? Number(search.price) : undefined,
+    collection_id: asString(search.collection_id),
+    collection_status: asString(search.collection_status),
+    payment_id: asString(search.payment_id),
+    status: asString(search.status),
+    external_reference: asString(search.external_reference),
   }),
   component: Pagamento,
 });
 
+function asString(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
 function Pagamento() {
+  const location = useLocation();
   const { presenteId, title, price } = Route.useSearch();
 
   const [buyer, setBuyer] = useState({ name: "", phone: "", email: "" });
   const [error, setError] = useState("");
+  const [pixError, setPixError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [generatingPix, setGeneratingPix] = useState(false);
+  const [pixPayment, setPixPayment] = useState<CriarPagamentoPixResponse | null>(null);
+  const [pixCopied, setPixCopied] = useState(false);
   const [presente, setPresente] = useState<Presente | null>(null);
   const [summaryImageFailed, setSummaryImageFailed] = useState(false);
 
@@ -45,6 +72,8 @@ function Pagamento() {
   const showGiftImage = Boolean(giftImageUrl) && !summaryImageFailed;
 
   useEffect(() => {
+    if (location.pathname !== "/pagamento") return;
+
     const script = document.createElement("script");
     script.src = "https://www.mercadopago.com/v2/security.js";
     script.setAttribute("view", "checkout");
@@ -54,9 +83,11 @@ function Pagamento() {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
+    if (location.pathname !== "/pagamento") return;
+
     if (!presenteId) {
       setPresente(null);
       return;
@@ -81,12 +112,9 @@ function Pagamento() {
     return () => {
       active = false;
     };
-  }, [presenteId]);
+  }, [location.pathname, presenteId]);
 
-  async function handlePay(e: React.FormEvent) {
-    e.preventDefault();
-    if (submitting) return;
-
+  function buildPaymentPayload() {
     const nomeComprador = buyer.name.trim();
     const telefoneComprador = buyer.phone.trim();
     const emailComprador = buyer.email.trim();
@@ -129,10 +157,7 @@ function Pagamento() {
       return;
     }
 
-    setSubmitting(true);
-    setError("");
-
-    const payload = {
+    return {
       presente_id: presenteId,
       titulo_presente: giftTitle,
       preco_presente: giftPrice,
@@ -142,6 +167,18 @@ function Pagamento() {
       descricao_presente: presente?.descricao ?? null,
       device_id: window.MP_DEVICE_SESSION_ID || null,
     };
+  }
+
+  async function handlePay(e: React.FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+
+    const payload = buildPaymentPayload();
+    if (!payload) return;
+
+    setSubmitting(true);
+    setError("");
+    setPixError("");
 
     try {
       const response = await criarPreferenciaMercadoPago(payload);
@@ -161,6 +198,53 @@ function Pagamento() {
     }
   }
 
+  async function handleGeneratePix() {
+    if (generatingPix) return;
+
+    const payload = buildPaymentPayload();
+    if (!payload) return;
+
+    setGeneratingPix(true);
+    setError("");
+    setPixError("");
+    setPixCopied(false);
+
+    try {
+      const response = await criarPagamentoPix(payload);
+      setPixPayment(response);
+
+      if (!response.qr_code || !response.qr_code_base64) {
+        setPixError("Pix gerado, mas o QR Code nao veio completo. Tente novamente.");
+      }
+    } catch (err) {
+      console.error("Erro tecnico retornado ao gerar Pix:", err);
+      setPixError(
+        "Não foi possível gerar o Pix agora. Tente novamente ou use o pagamento pelo Mercado Pago.",
+      );
+    } finally {
+      setGeneratingPix(false);
+    }
+  }
+
+  async function handleCopyPix() {
+    if (!pixPayment?.qr_code) return;
+
+    try {
+      await navigator.clipboard.writeText(pixPayment.qr_code);
+      setPixCopied(true);
+      window.setTimeout(() => setPixCopied(false), 2500);
+    } catch (err) {
+      console.error("Erro ao copiar codigo Pix:", err);
+      setPixError(
+        "Nao foi possivel copiar automaticamente. Selecione o codigo e copie manualmente.",
+      );
+    }
+  }
+
+  if (location.pathname !== "/pagamento") {
+    return <Outlet />;
+  }
+
   return (
     <div className="px-6 py-16 sm:py-20">
       <div className="max-w-5xl mx-auto">
@@ -175,8 +259,7 @@ function Pagamento() {
           <p className="divider-leaf text-xs uppercase tracking-[0.3em]">Pagamento</p>
           <h1 className="mt-6 font-display text-4xl sm:text-5xl">Finalize seu presente</h1>
           <p className="mt-4 text-foreground/70">
-            Você será direcionado ao Mercado Pago para concluir o pagamento com
-            segurança.
+            Você será direcionado ao Mercado Pago para concluir o pagamento com segurança.
           </p>
         </header>
 
@@ -197,11 +280,12 @@ function Pagamento() {
                   value={buyer.name}
                   onChange={(e) => {
                     setError("");
+                    setPixError("");
                     setBuyer({ ...buyer, name: e.target.value });
                   }}
                   required
                 />
-                
+
                 <Field
                   label={<RequiredLabel>E-mail</RequiredLabel>}
                   placeholder="seu@email.com"
@@ -209,11 +293,12 @@ function Pagamento() {
                   value={buyer.email}
                   onChange={(e) => {
                     setError("");
+                    setPixError("");
                     setBuyer({ ...buyer, email: e.target.value });
                   }}
                   required
                 />
-                
+
                 <Field
                   label={<RequiredLabel>Telefone / WhatsApp</RequiredLabel>}
                   placeholder="(00) 00000-0000"
@@ -221,6 +306,7 @@ function Pagamento() {
                   value={buyer.phone}
                   onChange={(e) => {
                     setError("");
+                    setPixError("");
                     setBuyer({ ...buyer, phone: e.target.value });
                   }}
                   required
@@ -240,6 +326,91 @@ function Pagamento() {
                   <Lock className="size-4" />
                   {submitting ? "Redirecionando..." : "Continuar para pagamento"}
                 </button>
+
+                <div className="flex items-center gap-3 py-1">
+                  <span className="h-px flex-1 bg-border/70" />
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                    ou pague via Pix
+                  </span>
+                  <span className="h-px flex-1 bg-border/70" />
+                </div>
+
+                <button
+                  type="button"
+                  disabled={generatingPix}
+                  onClick={handleGeneratePix}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-olive/40 bg-background px-6 py-3.5 text-sm font-medium text-olive transition-all hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {generatingPix ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <QrCode className="size-4" />
+                  )}
+                  {generatingPix ? "Gerando Pix..." : "Gerar QR Code Pix"}
+                </button>
+
+                {pixError && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {pixError}
+                  </p>
+                )}
+
+                {pixPayment && (
+                  <div className="rounded-lg border border-border/70 bg-background/70 p-5">
+                    <h3 className="font-display text-2xl">Codigo Pix</h3>
+                    <div className="mt-3 flex gap-2">
+                      <textarea
+                        readOnly
+                        value={pixPayment.qr_code ?? ""}
+                        className="min-h-24 flex-1 resize-none rounded-md border border-border/70 bg-card px-3 py-2 text-xs text-foreground/80 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleCopyPix}
+                        disabled={!pixPayment.qr_code}
+                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                        aria-label="Copiar codigo Pix"
+                        title="Copiar codigo Pix"
+                      >
+                        {pixCopied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                      </button>
+                    </div>
+
+                    {pixCopied && (
+                      <p className="mt-2 text-sm text-olive" role="status">
+                        Copiado com sucesso.
+                      </p>
+                    )}
+
+                    {pixPayment.qr_code_base64 && (
+                      <div className="mt-6">
+                        <h3 className="font-display text-2xl">Codigo QR</h3>
+                        <div className="mt-3 inline-flex rounded-lg border border-border/70 bg-white p-3">
+                          <img
+                            src={`data:image/png;base64,${pixPayment.qr_code_base64}`}
+                            alt="QR Code Pix"
+                            className="size-52 max-w-full"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {pixPayment.ticket_url && (
+                      <a
+                        href={pixPayment.ticket_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-olive hover:text-primary"
+                      >
+                        Abrir Pix no Mercado Pago <ExternalLink className="size-4" />
+                      </a>
+                    )}
+
+                    <p className="mt-4 text-sm leading-relaxed text-foreground/70">
+                      Apos o pagamento, a confirmacao sera feita automaticamente pelo Mercado Pago.
+                    </p>
+                  </div>
+                )}
               </form>
             </div>
 
