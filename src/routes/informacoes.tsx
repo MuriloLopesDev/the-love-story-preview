@@ -14,7 +14,7 @@ export const Route = createFileRoute("/informacoes")({
 
 const items = [
   { icon: Calendar, label: "Data", value: "Sábado, 10 de outubro de 2026" },
-  { icon: Clock, label: "Horário", value: "Cerimônia às 16h30 • Recepção às 18h30" },
+  { icon: Clock, label: "Horário", value: "Cerimônia às 15h30 • Recepção às 18h30" },
   { icon: MapPin, label: "Cerimônia", value: "Chácara Prímula" },
   { icon: MapPin, label: "Festa", value: "Chácara Prímula" },
   { icon: Shirt, label: "Dress code", value: "Traje social" },
