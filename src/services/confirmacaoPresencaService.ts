@@ -15,6 +15,11 @@ export type ConfirmacaoPresenca = ConfirmacaoPresencaPayload & {
   criado_em: string;
 };
 
+export type ConvidadoConfirmado = Pick<
+  ConfirmacaoPresenca,
+  "id" | "nome_convidado" | "nomes_acompanhantes"
+>;
+
 export async function registrarConfirmacaoPresenca(payload: ConfirmacaoPresencaPayload) {
   if (!isSupabaseConfigured) {
     throw new Error("Supabase não configurado.");
@@ -44,4 +49,32 @@ export async function listarConfirmacoesPresenca() {
   }
 
   return (data ?? []) as ConfirmacaoPresenca[];
+}
+
+export async function listarConvidadosConfirmados(): Promise<ConvidadoConfirmado[]> {
+  if (!isSupabaseConfigured) {
+    throw new Error("Supabase não configurado.");
+  }
+
+  const pageSize = 500;
+  const confirmados: ConvidadoConfirmado[] = [];
+
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from("confirmacoes_presenca")
+      .select("id,nome_convidado,nomes_acompanhantes")
+      .eq("vai_comparecer", true)
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      logSupabaseError("Erro ao listar convidados confirmados:", error);
+      throw error;
+    }
+
+    confirmados.push(...((data ?? []) as ConvidadoConfirmado[]));
+    if (!data || data.length < pageSize) break;
+  }
+
+  return confirmados;
 }

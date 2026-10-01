@@ -11,8 +11,10 @@ import {
   DollarSign,
   CheckCircle2,
   AlertCircle,
+  FileDown,
 } from "lucide-react";
 import {
+  listarConvidadosConfirmados,
   listarConfirmacoesPresenca,
   type ConfirmacaoPresenca,
 } from "@/services/confirmacaoPresencaService";
@@ -33,6 +35,7 @@ function Admin() {
   const [pedidos, setPedidos] = useState<PedidoPresente[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState("");
   const [validatingSession, setValidatingSession] = useState(true);
 
@@ -116,6 +119,23 @@ function Admin() {
     } catch (err) {
       console.error("Erro ao fazer logout:", err);
       toast.error("Erro ao encerrar sessão.");
+    }
+  }
+
+  async function handleExportPdf() {
+    if (isExporting) return;
+    setIsExporting(true);
+
+    try {
+      const guests = await listarConvidadosConfirmados();
+      const { gerarListaConvidadosPdf } = await import("@/lib/guest-list-pdf");
+      gerarListaConvidadosPdf(guests);
+      toast.success("PDF da lista de convidados gerado.");
+    } catch (err) {
+      console.error("Erro ao gerar lista de convidados:", err);
+      toast.error("Não foi possível gerar o PDF. Tente novamente.");
+    } finally {
+      setIsExporting(false);
     }
   }
 
@@ -203,7 +223,15 @@ function Admin() {
               Painel protegido. Os dados são carregados de forma segura após autenticação com Supabase Auth.
             </p>
           </div>
-          <div className="flex items-center gap-3 self-end sm:self-center">
+          <div className="flex flex-wrap items-center gap-3 self-end sm:self-center">
+            <button
+              onClick={handleExportPdf}
+              disabled={loading || !!error || isExporting}
+              className="inline-flex items-center gap-2 rounded-full bg-olive px-4 py-2.5 text-xs font-medium text-white shadow-[var(--shadow-soft)] transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            >
+              <FileDown className="size-3.5" />
+              {isExporting ? "Gerando PDF..." : "Baixar lista em PDF"}
+            </button>
             <button
               onClick={() => loadAdminData(true)}
               disabled={isRefreshing || loading}
